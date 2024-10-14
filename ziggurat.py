@@ -78,7 +78,7 @@ def tail_normal(x1, table, N):
     if x < xt[i]:
         return x
     elif i == 0:
-        return -1
+        return -1   
     else:
         y = np.random.uniform() * (yt[i] - yt[i-1]) + yt[i-1]
         
@@ -147,7 +147,7 @@ def plot_boxes():
 
 def plot_distribution(N):
     x = belly_and_tail_normal(1, N)
-    plt.hist(x, density=True, bins=1000)
+    plt.hist(x, density=True, bins=50)
     
     xn = np.linspace(0, 5, 100)
     yn = pdf(xn)
@@ -158,5 +158,5 @@ def plot_distribution(N):
     
     
 if __name__ == "__main__":
-    #plot_distribution(100000)
-    plot_boxes()
+    plot_distribution(50000)
+    #plot_boxes()
