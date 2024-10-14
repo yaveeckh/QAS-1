@@ -15,13 +15,40 @@ def Q(x):
     return 1-cdf(x)
 
 def belly_and_tail_normal(x1, N):
-    P = cdf(x1)
-    if np.random.random() < P:
-        return belly_normal(x1) # generate halfnormal rv in [0,x1] with AR method
-    else:
-        return tail_normal(x1, table, N) # generate halfnormal rv with fallback
+    """Generates a vector of half-normal distributed samples.
+
+    Args:
+        x1 (float): X values lower than this threshold get generated using acceptance-rejection sampling, after this threshold Ziggurat with fallback is used.        
+        N (int): Amount of samples to generate
+
+    Returns:
+        v: Vector of half-normal distributed samples.
+    """
+
+    # Number of boxes for Ziggurat
+    S = 256
+    table = ziggurat_table(x1, S)
+    
+    v = np.zeros(N)
+    for i in range(N):
+        # Decide if in belly or tail
+        P = cdf(x1)
+        if np.random.random() < P:
+            v[i] = belly_normal(x1) # generate halfnormal rv in [0,x1] with AR method
+        else:
+            v[i] = tail_normal(x1, table, S) # generate halfnormal rv with fallback
+        
+    return v
     
 def belly_normal(x1):
+    """Generate halfnormal sample via acceptance-rejection sampling.
+
+    Args:
+        x1 (float): X values lower than this threshold get generated using acceptance-rejection sampling, after this threshold Ziggurat with fallback is used.        
+
+    Returns:
+        float: Halfnormal sample.
+    """
     # Choose y to be distributed uniformly in [0, x1)
     y = np.random.uniform() * x1
     u = np.random.uniform()
@@ -32,6 +59,16 @@ def belly_normal(x1):
         return belly_normal(x1)
     
 def tail_normal(x1, table, N):
+    """Generate halfnormal sample via Ziggurat method with fallback.
+
+    Args:
+        x1 (float): Threshold
+        table (float, float, float): Table with ziggurat xy values and the area of the enclosed boxes.
+        N (int): Amount of areas.
+
+    Returns:
+        float: Halfnormal sample.
+    """
 
     xt, yt, _ = table
     
@@ -109,16 +146,7 @@ def plot_boxes():
     plt.show()
 
 def plot_distribution(N):
-    x = np.zeros(N)
-    x1 = 1
-
-    S = 256
-    table = ziggurat_table(x1, S)
-    
-    for i in range(N):
-        x[i] = belly_and_tail_normal(x1, table, S)
-        
-    print(x)
+    x = belly_and_tail_normal(1, N)
     plt.hist(x, density=True, bins=1000)
     
     xn = np.linspace(0, 5, 100)
@@ -130,5 +158,5 @@ def plot_distribution(N):
     
     
 if __name__ == "__main__":
-    plot_distribution(1000000)
-    #plot_boxes()
+    #plot_distribution(100000)
+    plot_boxes()
