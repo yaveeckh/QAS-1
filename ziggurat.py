@@ -10,10 +10,10 @@ def cdf(x):
     return 2 * (norm.cdf(x)-0.5)
 
 def belly_and_tail_normal(x1, N):
-    # Decide if in belly or tail
     x = np.zeros(N)
 
     for i in range(N):
+        # Check if in belly or tail
         P = cdf(x1)
         if np.random.random() < P:
             x[i] = belly_normal(x1) # generate halfnormal rv in [0,x1] with AR method
@@ -43,15 +43,22 @@ def tail_normal(x1):
     
 def c2test(N, k, alpha):
     x = belly_and_tail_normal(1, N)
+    
+    # Cap range such that there can be no division by zero in test
     Nj, edges = np.histogram(x, bins=k, range=[0, 8])
     expected = np.zeros(k)
 
+    # Recalculate N to not include outliers
+    N = np.sum(Nj)
+
+    # Calculate expected values in each interval
     for i in range(k):
         expected[i] = (cdf(edges[i+1]) - cdf(edges[i])) * N
 
+    # Calculate Chi^2 value
     X2 = sum((xj-expected[j])**2/(expected[j]) for (j,xj) in enumerate(Nj))
 
-    print(X2)
+    # Test
     print(chi2.ppf(alpha, k-1))
     if X2 < chi2.ppf(alpha, k-1):
         print("Passed")
@@ -96,6 +103,6 @@ def plot_success():
     
     
 if __name__ == "__main__":
-   #plot_distribution(100000)
+    #plot_distribution(100000)
     #plot_success()
     c2test(5, 10, 0.95)
