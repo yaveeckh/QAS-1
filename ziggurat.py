@@ -103,6 +103,6 @@ def plot_success():
     
     
 if __name__ == "__main__":
-    #plot_distribution(100000)
-    #plot_success()
-    c2test(5, 10000, 0.95)
+    plot_distribution(100000)
+    plot_success()
+    c2test(5, 10000, 0.99)
