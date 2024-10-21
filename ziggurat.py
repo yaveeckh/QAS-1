@@ -45,7 +45,7 @@ def c2test(N, k, alpha):
     x = belly_and_tail_normal(1, N)
     
     # Cap range such that there can be no division by zero in test
-    Nj, edges = np.histogram(x, bins=k, range=[0, 8])
+    Nj, edges = np.histogram(x, bins=k, range=[0, 5])
     expected = np.zeros(k)
 
     # Recalculate N to not include outliers
@@ -55,7 +55,7 @@ def c2test(N, k, alpha):
     for i in range(k):
         expected[i] = (cdf(edges[i+1]) - cdf(edges[i])) * N
 
-    # Calculate Chi^2 value
+    # Calculate Chi^2 value, notice division by zero if expected is 0
     X2 = sum((xj-expected[j])**2/(expected[j]) for (j,xj) in enumerate(Nj))
 
     # Test
@@ -105,4 +105,4 @@ def plot_success():
 if __name__ == "__main__":
     #plot_distribution(100000)
     #plot_success()
-    c2test(5, 10, 0.95)
+    c2test(5, 10000, 0.95)
